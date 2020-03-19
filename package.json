@@ -1,5 +1,5 @@
 {
-  "name": "koa-router-advanced",
+  "name": "koa-advanced-router",
   "version": "0.0.1",
   "description": "Advanced Router middleware for koa.",
   "files": [
@@ -48,7 +48,7 @@
     "test-with-coverage": "npm run deleteTestResults && nyc --reporter=lcovonly npm test && cat ./coverage/lcov.info | codacy-coverage && rm -rf ./coverage",
     "dev": "./node_modules/nodemon/bin/nodemon.js --config ./.nodemoncfg -x \"(reset &&  yarn build) || exit 1\""
   },
-  "repository": "https://github.com/michelbitter/koa-router-advanced",
+  "repository": "https://github.com/michelbitter/koa-advanced-router",
   "author": "Michel Bitter <michel@bitter.dev>",
   "license": "MIT",
   "private": true,
