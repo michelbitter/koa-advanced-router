@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationDir": "./lib/@types",
+    "incremental": true,
+    "inlineSourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "target": "ES2017",
+    "outDir": "./lib",
+    "diagnostics": true,
+    "alwaysStrict": true,
+    "allowJs": false,
+    "pretty": true,
+    "noEmitOnError": true,
+    "rootDir": "src",
+    "preserveConstEnums": true,
+    "typeRoots": ["node_modules/@types"]
+  },
+  "exclude": [
+    "node_modules/**/*",
+  ],
+  "include": [ "src/**/*"]
+}
