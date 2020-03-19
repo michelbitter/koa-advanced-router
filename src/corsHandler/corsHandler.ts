@@ -4,6 +4,7 @@ import {RouteObj} from '../layer/layer.interfaces'
 import * as httpErrors from 'http-errors'
 
 export class CORSHandler {
+  // eslint-disable-next-line no-useless-constructor
   public constructor(private deps: CORSHandlerDependencies) {}
 
   public static factory() {

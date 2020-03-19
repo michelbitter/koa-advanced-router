@@ -32,16 +32,17 @@ export interface RouteObj {
   readonly path: string | RegExp
 }
 
-export type Param<StateT = DefaultState, CustomT = DefaultContext, TParam = any> = (
+export type Param<StateT = DefaultState, CustomT = DefaultContext, TParam = unknown> = (
   ctx: ParameterizedContext<StateT, CustomT>,
   next: Next,
   param: TParam,
-) => any
+) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any
 
 export interface Params {
-  [key: string]: Param<any, any, any>
+  [key: string]: Param
 }
 
 export interface MatchedParam {
-  readonly [key: string]: any
+  readonly [key: string]: unknown
 }

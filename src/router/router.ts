@@ -2,21 +2,19 @@ import {RouterDependencies, RouterOptions} from './router.interfaces'
 import {Params, Methods, RouteObj} from '../layer/layer.interfaces'
 import Layer from '../layer/layer'
 import {Middleware, Context, Next} from 'koa'
-import {v4 as uuidV4} from 'uuid'
 import * as httpErrors from 'http-errors'
 import * as koaCompose from 'koa-compose'
 
 export default class Router {
   private opts: RouterOptions = {
     allowedMethods: true,
-    version: false,
     expose: false,
+    version: false,
   }
 
   public static factory(opts?: RouterOptions) {
     return new this(
       {
-        uuid: uuidV4,
         Layer: Layer,
         httpErrors,
         koaCompose,
@@ -56,91 +54,100 @@ export default class Router {
         Methods.put,
         Methods.trace,
       ],
-      path: path,
       middlewares,
-      params,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public connect(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public connect(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.connect],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public delete(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public delete(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.delete],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public get(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public get(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.get],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public head(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public head(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.head],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public options(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public options(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.options],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public patch(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public patch(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.patch],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public post(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public post(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.post],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public put(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public put(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.put],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
-  public trace(path: string | RegExp, middlewares: Middleware[], opts?: RouteObj['options']) {
+  public trace(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.trace],
-      path: path,
       middlewares,
       options: opts,
+      params,
+      path: path,
     })
   }
 
@@ -168,11 +175,11 @@ export default class Router {
       const layer = this.deps.Layer.factory().register({
         ...route,
         middlewares: [...this.middlewares, ...route.middlewares],
-        params: {...this.params, ...route.params},
         options: {
           ...this.opts,
           ...route.options,
         },
+        params: {...this.params, ...route.params},
       })
 
       routes.push(layer)

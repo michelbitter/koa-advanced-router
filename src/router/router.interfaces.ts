@@ -1,4 +1,3 @@
-import {v4 as uuidV4} from 'uuid'
 import Layer from '../layer/layer'
 import {Options} from '../interfaces'
 import * as httpErrors from 'http-errors'
@@ -15,7 +14,6 @@ export interface VersionSettings {
 }
 
 export interface RouterDependencies {
-  readonly uuid: typeof uuidV4
   readonly Layer: typeof Layer
   readonly httpErrors: typeof httpErrors
   readonly koaCompose: typeof koaCompose

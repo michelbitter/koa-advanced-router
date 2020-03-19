@@ -10,13 +10,14 @@ export class Route {
 
   public static factory() {
     return new this({
-      httpErrors,
       CORSHandler: CORSHandler.factory(),
+      httpErrors,
       koaCompose,
       path2regexp,
     })
   }
 
+  // eslint-disable-next-line no-useless-constructor
   public constructor(private deps: LayerDependencies) {}
 
   public register(route: RouteObj) {
@@ -35,13 +36,13 @@ export class Route {
         const match = this.route.path.exec(path)
         if (match) {
           return this.HandleRequestAfterPathMatches(ctx, {
-            path: path,
             index: match.index,
             params: match.groups || {},
+            path: path,
           })
         }
       } else {
-        const matchFnc = this.deps.path2regexp.match(path, this.route.options)
+        const matchFnc = this.deps.path2regexp.match<MatchedParam>(path, this.route.options)
         const match = matchFnc(path)
         if (match) {
           return this.HandleRequestAfterPathMatches(ctx, match)
@@ -85,6 +86,7 @@ export class Route {
   private HandleRequestAfterPathMatches(ctx: Context, match: path2regexp.MatchResult<MatchedParam>) {
     if (this.route !== undefined) {
       const method: string = ctx.request.method.toUpperCase()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (this.route.methods.includes(method as any)) {
         const stack: Middleware[] = []
         if (this.route.params) {
@@ -139,6 +141,7 @@ export class Route {
   private MatchRequestAfterPathMatches(ctx: Context) {
     if (this.route !== undefined) {
       const method: string = ctx.request.method.toUpperCase()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (this.route.methods.includes(method as any)) {
         return true
       } else if (
