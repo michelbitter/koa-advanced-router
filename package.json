@@ -51,7 +51,7 @@
   "repository": "https://github.com/michelbitter/koa-advanced-router",
   "author": "Michel Bitter <michel@bitter.dev>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@types/http-errors": "^1.6.3",
     "@types/koa": "^2.11.2",
