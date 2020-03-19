@@ -34,10 +34,10 @@
       ".ts"
     ]
   },
-  "types": "lib/index.d.ts",
+  "types": "lib/@types/index.d.ts",
   "typings": "./node_modules/@types",
   "typescript": {
-    "definition": "lib/index.d.ts"
+    "definition": "lib/@types/index.d.ts"
   },
   "scripts": {
     "build": "npm run eslint && npm run coverage && ./node_modules/.bin/rimraf ./lib && ./node_modules/.bin/tsc",
