@@ -40,7 +40,8 @@ export type Param<StateT = DefaultState, CustomT = DefaultContext, TParam = unkn
 any
 
 export interface Params {
-  [key: string]: Param
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: Param<any, any, any>
 }
 
 export interface MatchedParam {
