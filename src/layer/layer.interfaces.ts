@@ -26,7 +26,7 @@ export enum Methods {
 
 export interface RouteObj {
   readonly methods: Methods[]
-  readonly middlewares: Middleware[]
+  readonly middleware: Middleware[]
   readonly options?: Options
   readonly params?: Params
   readonly path: string | RegExp

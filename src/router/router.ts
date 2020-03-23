@@ -23,7 +23,7 @@ export default class Router {
     )
   }
 
-  private middlewares: Middleware[] = []
+  private middleware: Middleware[] = []
   private params: Params = {}
   private routeList: RouteObj[] = []
 
@@ -41,7 +41,7 @@ export default class Router {
     return this
   }
 
-  public all(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public all(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [
         Methods.connect,
@@ -54,117 +54,117 @@ export default class Router {
         Methods.put,
         Methods.trace,
       ],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public connect(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public connect(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.connect],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public delete(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public delete(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.delete],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public get(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public get(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.get],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public head(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public head(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.head],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public options(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public options(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.options],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public patch(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public patch(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.patch],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public post(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public post(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.post],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public put(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public put(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.put],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public trace(path: string | RegExp, middlewares: Middleware[], params?: Params, opts?: RouteObj['options']) {
+  public trace(path: string | RegExp, middleware: Middleware[], params?: Params, opts?: RouteObj['options']) {
     return this.route({
       methods: [Methods.trace],
-      middlewares,
+      middleware,
       options: opts,
       params,
       path: path,
     })
   }
 
-  public use(middlewares: Middleware | Middleware[]) {
-    if (Array.isArray(middlewares)) {
-      for (const singleMiddleware of middlewares) {
+  public use(middleware: Middleware | Middleware[]) {
+    if (Array.isArray(middleware)) {
+      for (const singleMiddleware of middleware) {
         this.use(singleMiddleware)
       }
     } else {
-      this.middlewares.push(middlewares)
+      this.middleware.push(middleware)
     }
 
     return this
   }
 
-  public param(param: string, middlewares: Middleware) {
-    this.params[param] = middlewares
+  public param(param: string, middleware: Middleware) {
+    this.params[param] = middleware
     return this
   }
 
@@ -174,7 +174,7 @@ export default class Router {
     for (const route of this.routeList) {
       const layer = this.deps.Layer.factory().register({
         ...route,
-        middlewares: [...this.middlewares, ...route.middlewares],
+        middleware: [...this.middleware, ...route.middleware],
         options: {
           ...this.opts,
           ...route.options,

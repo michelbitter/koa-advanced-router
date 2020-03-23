@@ -103,7 +103,7 @@ export class Route {
           }
         }
 
-        for (const middleware of this.route.middlewares) {
+        for (const middleware of this.route.middleware) {
           stack.push(middleware)
         }
 
