@@ -13,15 +13,15 @@ export interface LayerDependencies {
 }
 
 export enum Methods {
-  connect = 'CONNECT',
-  delete = 'DELETE',
-  get = 'GET',
-  head = 'HEAD',
-  options = 'OPTIONS',
-  patch = 'PATCH',
-  post = 'POST',
-  put = 'PUT',
-  trace = 'TRACE',
+  connect = 'connect',
+  delete = 'delete',
+  get = 'get',
+  head = 'head',
+  options = 'options',
+  patch = 'patch',
+  post = 'post',
+  put = 'put',
+  trace = 'trace',
 }
 
 export interface RouteObj {
