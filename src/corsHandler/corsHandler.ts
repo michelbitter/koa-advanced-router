@@ -25,9 +25,12 @@ export class CORSHandler {
       const matches = results.filter(result => typeof result !== 'boolean') as CorsHeaders[]
 
       if (matches.length > 0) {
-        ctx.response.status = 200
-        ctx.headers = this.mergeCorsHeaders(matches)
-
+        ctx.status = 204
+        const headers = this.mergeCorsHeaders(matches)
+        for (const name in headers) {
+          const headerName = name as keyof CorsHeaders
+          ctx.set(headerName, headers[headerName].toString())
+        }
         return ctx
       }
 
@@ -43,7 +46,7 @@ export class CORSHandler {
         'Access-Control-Allow-Credentials': cors.allowCredentials,
         'Access-Control-Allow-Headers': this.MakeFromArrayHeaderValue(cors.allowedHeaders),
         'Access-Control-Allow-Methods': this.MakeFromArrayHeaderValue(cors.allowedMethods),
-        'Access-Control-Allow-Origin': ctx.request.origin,
+        'Access-Control-Allow-Origin': ctx.request.header.origin,
         'Access-Control-Expose-Headers': this.MakeFromArrayHeaderValue(cors.exposedHeaders),
         'Access-Control-Max-Age': cors.maxAge,
       }
@@ -59,14 +62,13 @@ export class CORSHandler {
       const results: boolean[] = cors.allowedOrigin.map(allowedOrigins =>
         this.OriginIsAllowed(ctx, {...cors, allowedOrigin: allowedOrigins}),
       )
-
       return results.includes(true)
     } else if (typeof cors.allowedOrigin === 'function') {
       return cors.allowedOrigin(ctx)
     } else if (cors.allowedOrigin instanceof RegExp) {
-      return ctx.request.origin.match(cors.allowedOrigin) !== null
+      return cors.allowedOrigin.test(ctx.request.header.origin)
     } else {
-      return cors.allowedOrigin === '*' || ctx.request.origin === cors.allowedOrigin
+      return cors.allowedOrigin === '*' || ctx.request.header.origin === cors.allowedOrigin
     }
   }
 

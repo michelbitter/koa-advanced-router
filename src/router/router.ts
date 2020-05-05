@@ -1,4 +1,4 @@
-import {RouterDependencies, RouterOptions} from './router.interfaces'
+import {RouterDependencies, RouterOptions, VersionOptions} from './router.interfaces'
 import {Params, Methods, RouteObj} from '../layer/layer.interfaces'
 import Layer from '../layer/layer'
 import {Middleware, Context, Next} from 'koa'
@@ -6,12 +6,6 @@ import * as httpErrors from 'http-errors'
 import * as koaCompose from 'koa-compose'
 
 export default class Router {
-  private opts: RouterOptions = {
-    allowedMethods: true,
-    expose: false,
-    version: false,
-  }
-
   public static factory(opts?: RouterOptions) {
     return new this(
       {
@@ -26,6 +20,15 @@ export default class Router {
   private middleware: Middleware[] = []
   private params: Params = {}
   private routeList: RouteObj[] = []
+  private versions: {[key: string]: Router} = {}
+  private opts: RouterOptions = {
+    allowedMethods: true,
+    cors: [],
+    expose: false,
+    prefix: undefined,
+    sensitive: false,
+    versionHandler: false,
+  }
 
   public constructor(private deps: RouterDependencies, opts?: RouterOptions) {
     if (opts !== undefined) {
@@ -168,11 +171,46 @@ export default class Router {
     return this
   }
 
+  public version(identifier: string, options?: VersionOptions) {
+    if (this.opts.versionHandler) {
+      if (
+        (this.opts.sensitive && !(identifier in this.versions)) ||
+        (!this.opts.sensitive && !(identifier.toLowerCase() in this.versions))
+      ) {
+        const realIdentifier = this.opts.sensitive ? identifier : identifier.toLowerCase()
+
+        let prefix: undefined | string
+
+        if (this.opts.prefix && this.opts.versionHandler === 'url') {
+          prefix = `${this.opts.prefix}/${realIdentifier}`
+        } else if (this.opts.prefix && this.opts.versionHandler !== 'url') {
+          prefix = `${this.opts.prefix}`
+        } else if (!this.opts.prefix && this.opts.versionHandler === 'url') {
+          prefix = `${realIdentifier}`
+        }
+
+        this.versions[realIdentifier] = new Router(this.deps, {
+          ...this.opts,
+          prefix,
+          versionHandler: false,
+          ...options,
+        })
+
+        return this.versions[identifier]
+      } else {
+        throw new Error(`Couldn't register version. Version with same identifier already registered`)
+      }
+    }
+
+    throw new Error(`You're not allowed to to register version. Versionhandling is disabled by router config.`)
+  }
+
   public get routes(): Middleware {
     const routes: Layer[] = []
+    const versions: {[key: string]: Middleware} = {}
 
     for (const route of this.routeList) {
-      const layer = this.deps.Layer.factory().register({
+      const layerSetting = {
         ...route,
         middleware: [...this.middleware, ...route.middleware],
         options: {
@@ -180,27 +218,77 @@ export default class Router {
           ...route.options,
         },
         params: {...this.params, ...route.params},
-      })
+      }
+
+      const layer = this.deps.Layer.factory().register(layerSetting)
 
       routes.push(layer)
     }
+
+    for (const versionID in this.versions) {
+      versions[versionID] = this.versions[versionID].routes
+    }
+
     const koaCompose = this.deps.koaCompose
-    const opts = this.opts
-    return async function(ctx: Context, next: Next) {
+    const options = this.opts
+    const middleware = this.middleware
+
+    return async function (ctx: Context, next: Next) {
+      function matchRequestWithVersion(ctx: Context): Middleware | null {
+        if (options.versionHandler) {
+          if (typeof options.versionHandler === 'function') {
+            const match = options.versionHandler(ctx, Object.keys(versions))
+            if (match !== null && match in versions) {
+              return versions[match]
+            }
+          } else if (options.versionHandler === 'header') {
+            if (ctx.header.version) {
+              const requestedVersion = options.sensitive ? ctx.header.version : ctx.header.version.toLowerCase()
+              if (requestedVersion in versions) {
+                return versions[requestedVersion]
+              }
+            }
+          } else {
+            const path = ctx.request.path
+            let match: Middleware | null = null
+            for (const versionID in versions) {
+              const prefix = options.prefix ? `/${options.prefix}/${versionID}/` : `/${versionID}/`
+              if (path.startsWith(prefix, 0)) {
+                match = versions[versionID]
+                break
+              }
+            }
+            return match
+          }
+        }
+
+        return null
+      }
+
       try {
         let httpError: httpErrors.HttpError | undefined
         const stack: Middleware[] = []
+        if (!options.prefix || (options.prefix && ctx.request.path.startsWith(`/${options.prefix}`))) {
+          const requestedVersion = matchRequestWithVersion(ctx)
+          if (typeof requestedVersion === 'function') {
+            for (const fnc of middleware) {
+              stack.push(fnc)
+            }
+            stack.push(requestedVersion)
+          } else {
+            const path = options.prefix ? ctx.request.path.replace(`/${options.prefix}`, '') : ctx.request.path
+            for (const route of routes) {
+              if (route.match(ctx, path)) {
+                const handled = route.handle(ctx, path)
 
-        for (const route of routes) {
-          if (route.match(ctx)) {
-            const handled = route.handle(ctx)
-
-            if (handled instanceof httpErrors.HttpError) {
-              if (httpError === undefined || handled.status >= httpError.status) {
-                httpError = handled
+                if (handled instanceof httpErrors.HttpError) {
+                  if (httpError === undefined || handled.status >= httpError.status) {
+                    httpError = handled
+                  }
+                } else {
+                  stack.push(handled)
+                }
               }
-            } else {
-              stack.push(handled)
             }
           }
         }
@@ -209,14 +297,14 @@ export default class Router {
           await koaCompose(stack)(ctx, next)
         } else if (httpError !== undefined) {
           ctx.status = httpError.status
-          if (opts.expose || httpError.status < 500) {
+          if (options.expose || httpError.status < 500) {
             ctx.body = httpError.message
           }
           await next()
         }
       } catch (err) {
         ctx.status = err.status || 500
-        if (opts.expose) {
+        if (options.expose) {
           ctx.body = err.message
         }
         ctx.app.emit('error', err, ctx)

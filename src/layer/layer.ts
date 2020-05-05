@@ -21,7 +21,7 @@ export class Route {
   public constructor(private deps: LayerDependencies) {}
 
   public register(route: RouteObj) {
-    if (this.route !== undefined) {
+    if (this.route === undefined) {
       this.route = route
       return this
     }
@@ -29,9 +29,8 @@ export class Route {
     throw new Error('Route is already registered.')
   }
 
-  public handle(ctx: Context) {
+  public handle(ctx: Context, path: string) {
     if (this.route !== undefined) {
-      const path = ctx.request.path
       if (this.route.path instanceof RegExp) {
         const match = this.route.path.exec(path)
         if (match) {
@@ -42,7 +41,11 @@ export class Route {
           })
         }
       } else {
-        const matchFnc = this.deps.path2regexp.match<MatchedParam>(path, this.route.options)
+        const matchFnc = this.deps.path2regexp.match<MatchedParam>(this.route.path, {
+          ...this.route.options,
+          decode: decodeURIComponent,
+          encode: encodeURI,
+        })
         const match = matchFnc(path)
         if (match) {
           return this.HandleRequestAfterPathMatches(ctx, match)
@@ -53,24 +56,27 @@ export class Route {
     return new this.deps.httpErrors.NotFound()
   }
 
-  public match(ctx: Context) {
+  public match(ctx: Context, path: string) {
+    console.log(path)
     if (this.route !== undefined) {
-      const path = ctx.request.path
       if (this.route.path instanceof RegExp) {
         const match = this.route.path.exec(path)
         if (match) {
           return this.MatchRequestAfterPathMatches(ctx)
         }
       } else {
-        const matchFnc = this.deps.path2regexp.match(path, this.route.options)
+        const matchFnc = this.deps.path2regexp.match<MatchedParam>(this.route.path, {
+          ...this.route.options,
+          decode: decodeURIComponent,
+          encode: encodeURI,
+        })
         const match = matchFnc(path)
         if (match) {
           return this.MatchRequestAfterPathMatches(ctx)
         }
       }
     }
-
-    return new this.deps.httpErrors.NotFound()
+    throw new this.deps.httpErrors.NotFound()
   }
 
   private MakeFromArrayHeaderValue(list: (number | string)[]) {
@@ -92,10 +98,11 @@ export class Route {
         if (this.route.params) {
           const params = this.route.params
           const matchedGroups = match.params
+
           if (matchedGroups) {
             for (const matchedGroupName in matchedGroups) {
               if (params[matchedGroupName]) {
-                stack.push(async function(ctx: Context, next: Next) {
+                stack.push(async function (ctx: Context, next: Next) {
                   await params[matchedGroupName](ctx, next, matchedGroups[matchedGroupName])
                 })
               }
@@ -115,7 +122,7 @@ export class Route {
       ) {
         const result = this.deps.CORSHandler.GenerateCORSResponse(ctx, this.route)
         const stack: Middleware[] = [
-          async function(ctx: Context) {
+          async function (ctx: Context) {
             if (result instanceof httpErrors.HttpError) {
               ctx.response.status = result.status
             } else {
@@ -135,12 +142,13 @@ export class Route {
       }
     }
 
-    return new this.deps.httpErrors.NotFound()
+    throw new this.deps.httpErrors.NotFound()
   }
 
   private MatchRequestAfterPathMatches(ctx: Context) {
     if (this.route !== undefined) {
-      const method: string = ctx.request.method.toUpperCase()
+      const method: string = ctx.request.method.toLowerCase()
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (this.route.methods.includes(method as any)) {
         return true
