@@ -67,3 +67,4 @@ typings/
 lib/
 .DS_Store
 /tsconfig.tsbuildinfo
+package-lock.json

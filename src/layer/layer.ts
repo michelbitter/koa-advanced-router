@@ -57,7 +57,6 @@ export class Route {
   }
 
   public match(ctx: Context, path: string) {
-    console.log(path)
     if (this.route !== undefined) {
       if (this.route.path instanceof RegExp) {
         const match = this.route.path.exec(path)
@@ -147,7 +146,7 @@ export class Route {
 
   private MatchRequestAfterPathMatches(ctx: Context) {
     if (this.route !== undefined) {
-      const method: string = ctx.request.method.toLowerCase()
+      const method: string = ctx.request.method.toUpperCase()
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (this.route.methods.includes(method as any)) {
