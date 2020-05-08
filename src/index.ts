@@ -5,7 +5,8 @@ export {RouterOptions, VersionOptions, VersionMatchingFunction} from './router/r
 export {Params, Methods, RouteObj, Param} from './layer/layer.interfaces'
 export {Options as RouteOptions} from './interfaces'
 
-export const Router = RouterClass
+export type Router = RouterClass
+
 export default function (opts?: RouterOptions) {
   return RouterClass.factory(opts)
 }
