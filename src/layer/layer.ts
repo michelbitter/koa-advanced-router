@@ -75,7 +75,7 @@ export class Route {
         }
       }
     }
-    throw new this.deps.httpErrors.NotFound()
+    return new this.deps.httpErrors.NotFound()
   }
 
   private MakeFromArrayHeaderValue(list: (number | string)[]) {
