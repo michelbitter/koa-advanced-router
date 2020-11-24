@@ -117,12 +117,10 @@ export class Route {
         if (this.route.options !== undefined && this.route.options.cors !== undefined) {
           const corsHeaders = this.deps.CORSHandler.getCORSHeaders(ctx, this.route)
           if (corsHeaders) {
-            stack.push(async function (ctx: Context) {
-              for (const name in corsHeaders) {
-                const headerName = name as keyof CorsHeaders
-                ctx.set(headerName, corsHeaders[headerName].toString())
-              }
-            })
+            for (const name in corsHeaders) {
+              const headerName = name as keyof CorsHeaders
+              ctx.set(headerName, corsHeaders[headerName].toString())
+            }
           }
         }
 
