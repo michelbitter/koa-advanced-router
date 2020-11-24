@@ -40,6 +40,25 @@ export class CORSHandler {
     return new this.deps.httpErrors.NotFound()
   }
 
+  public getCORSHeaders(ctx: Context, route: RouteObj) {
+    if (route.options && route.options.cors) {
+      let results: (false | CorsHeaders)[] = []
+      if (Array.isArray(route.options.cors)) {
+        results = route.options.cors.map(corsSettings => this.handleCorsSettings(ctx, corsSettings))
+      } else {
+        results = [this.handleCorsSettings(ctx, route.options.cors)]
+      }
+
+      const matches = results.filter(result => typeof result !== 'boolean') as CorsHeaders[]
+
+      if (matches.length > 0) {
+        return this.mergeCorsHeaders(matches)
+      }
+    }
+
+    return false
+  }
+
   private handleCorsSettings(ctx: Context, cors: CorsSettings) {
     if (this.OriginIsAllowed(ctx, cors)) {
       const corsHeaders: CorsHeaders = {

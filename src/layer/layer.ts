@@ -4,6 +4,7 @@ import * as httpErrors from 'http-errors'
 import CORSHandler from '../corsHandler/corsHandler'
 import * as koaCompose from 'koa-compose'
 import * as path2regexp from 'path-to-regexp'
+import {CorsHeaders} from '../corsHandler/corsHandler.interfaces'
 
 export class Route {
   private route?: RouteObj
@@ -111,6 +112,18 @@ export class Route {
 
         for (const middleware of this.route.middleware) {
           stack.push(middleware)
+        }
+
+        if (this.route.options !== undefined && this.route.options.cors !== undefined) {
+          const corsHeaders = this.deps.CORSHandler.getCORSHeaders(ctx, this.route)
+          if (corsHeaders) {
+            stack.push(async function (ctx: Context) {
+              for (const name in corsHeaders) {
+                const headerName = name as keyof CorsHeaders
+                ctx.set(headerName, corsHeaders[headerName].toString())
+              }
+            })
+          }
         }
 
         return this.deps.koaCompose(stack)
