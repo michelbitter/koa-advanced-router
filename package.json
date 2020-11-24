@@ -1,6 +1,6 @@
 {
   "name": "koa-advanced-router",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Advanced Router middleware for koa.",
   "files": [
     "lib"
