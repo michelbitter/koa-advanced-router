@@ -119,7 +119,9 @@ export class Route {
           if (corsHeaders) {
             for (const name in corsHeaders) {
               const headerName = name as keyof CorsHeaders
-              ctx.set(headerName, corsHeaders[headerName].toString())
+              if (corsHeaders[headerName] && corsHeaders[headerName].toString().length > 0) {
+                ctx.set(headerName, corsHeaders[headerName].toString())
+              }
             }
           }
         }

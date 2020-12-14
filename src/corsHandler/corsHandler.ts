@@ -29,7 +29,9 @@ export class CORSHandler {
         const headers = this.mergeCorsHeaders(matches)
         for (const name in headers) {
           const headerName = name as keyof CorsHeaders
-          ctx.set(headerName, headers[headerName].toString())
+          if (headers[headerName] && headers[headerName].toString().length > 0) {
+            ctx.set(headerName, headers[headerName].toString())
+          }
         }
         return ctx
       }
