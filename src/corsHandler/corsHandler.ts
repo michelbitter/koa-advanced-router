@@ -62,7 +62,7 @@ export class CORSHandler {
   }
 
   private handleCorsSettings(ctx: Context, cors: CorsSettings) {
-    if (this.OriginIsAllowed(ctx, cors)) {
+    if (ctx.request.header.origin && this.OriginIsAllowed(ctx, cors)) {
       const corsHeaders: CorsHeaders = {
         'Access-Control-Allow-Credentials': cors.allowCredentials,
         'Access-Control-Allow-Headers': this.MakeFromArrayHeaderValue(cors.allowedHeaders),
@@ -86,7 +86,9 @@ export class CORSHandler {
       return results.includes(true)
     } else if (typeof cors.allowedOrigin === 'function') {
       return cors.allowedOrigin(ctx)
-    } else if (cors.allowedOrigin instanceof RegExp) {
+    }else if(ctx.request.header.origin === undefined){
+      return false
+    } else if (ctx.request.header.origin && cors.allowedOrigin instanceof RegExp) {
       return cors.allowedOrigin.test(ctx.request.header.origin)
     } else {
       return cors.allowedOrigin === '*' || ctx.request.header.origin === cors.allowedOrigin

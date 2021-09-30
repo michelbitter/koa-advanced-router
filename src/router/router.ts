@@ -243,7 +243,8 @@ export default class Router {
             }
           } else if (options.versionHandler === 'header') {
             if (ctx.header.version) {
-              const requestedVersion = options.sensitive ? ctx.header.version : ctx.header.version.toLowerCase()
+              const versionValue = Array.isArray(ctx.header.version) ? ctx.header.version.join() : ctx.header.version
+              const requestedVersion = options.sensitive ? versionValue : versionValue.toLowerCase()
               if (requestedVersion in versions) {
                 return versions[requestedVersion]
               }
